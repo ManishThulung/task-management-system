@@ -16,6 +16,8 @@ Your backend application will be available at http://localhost:8000.
 Your frontend application will be available at http://localhost:5173.
 Your mongodb database GUI application will be available at http://localhost:8081 where you can see the structure of database through GUI and can interact with it.
 
+This application also has an admin dashboard where you can login as an admin and have access to all the tasks created in the whole application by many users.
+
 ## Setup the project manually
 
 To run the project locally, you have to start the backend and frontend seperately
