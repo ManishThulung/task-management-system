@@ -1,0 +1,65 @@
+version: "3.1"
+
+services:
+  web:
+    depends_on:
+      - api
+    build: ./frontend
+    ports:
+      - 5173:5173
+    env_file: ./.env
+    environment:
+      VITE_BACKEND_URI: $VITE_BACKEND_URI
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+  api:
+    build: ./backend
+    ports:
+      - 8000:8000
+    depends_on:
+      - "mongodb"
+    env_file: ./.env
+    environment:
+      MONGO_DB_USER: $MONGO_DB_USER
+      MONGO_DB_PASSWORD: $MONGO_DB_PASSWORD
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    env_file: ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_DB_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_DB_PASSWORD
+    volumes:
+      - task-data:/data/db/tasks
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    depends_on:
+      - "mongodb"
+    env_file: ./.env
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGO_DB_USER
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGO_DB_PASSWORD
+      ME_CONFIG_MONGODB_SERVER: $MONGO_DB_SERVER
+volumes:
+  task-data:

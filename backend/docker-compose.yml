@@ -1,0 +1,49 @@
+version: "3.1"
+
+services:
+  api:
+    build: .
+    ports:
+      - 6000:6000
+    depends_on:
+      - "mongodb"
+    env_file: ./.env
+    environment:
+      MONGO_DB_USER: $MONGO_DB_USER
+      MONGO_DB_PASSWORD: $MONGO_DB_PASSWORD
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: ./tsconfig.json
+          action: rebuild
+        - path: .
+          target: /app
+          action: sync
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    env_file: ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_DB_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_DB_PASSWORD
+    volumes:
+      - task-data:/data/db/tasks
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    depends_on:
+      - "mongodb"
+    env_file: ./.env
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGO_DB_USER
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGO_DB_PASSWORD
+      ME_CONFIG_MONGODB_SERVER: $MONGO_DB_SERVER
+volumes:
+  task-data:
